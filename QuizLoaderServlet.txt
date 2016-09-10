@@ -1,0 +1,55 @@
+package oswald.tutorial.jsp;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class QuizLoaderServlet
+ * used to handle request and read quiz content from database
+ */
+@WebServlet("/QuizLoaderServlet")
+public class QuizLoaderServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html");
+		
+		String quizName = request.getParameter("quizName");
+		
+		Quiz aQuiz = DatabaseUtil.readQuizContent(quizName);
+		List<Question> questions = aQuiz.getQuestions();
+		
+		//print to console for debugging purpose
+		for (Question q: questions) {
+			System.out.print(q.getNumber() + ": ");
+			System.out.println(q.getQuestionText());
+			for (String s: q.getAnswerOptions()) {
+				System.out.println(s);
+			}
+		}
+		
+		//check if the selected quiz was found in database
+		if (questions != null) {
+			request.setAttribute("quizQuestions", questions);
+				
+			//forward the request to a jsp page that will display the questions
+			RequestDispatcher rd = request.getRequestDispatcher("display-questions.jsp");
+			rd.forward(request, response);
+		}
+		
+	}
+	
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doPost(request, response);
+	}
+
+}

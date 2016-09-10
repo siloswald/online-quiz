@@ -1,0 +1,46 @@
+package oswald.tutorial.jsp;
+
+import java.io.Serializable;
+import java.util.*;
+
+/**
+ * implementation of a question object
+ */
+public class Question implements Serializable{
+	
+	private int number;
+	private String questionText;
+	List<String> answerOptions;
+	String correctAnswer;
+	
+	public Question(int number, String question, List<String> answers, String correctAnswer) {
+		this.number = number;
+		this.questionText = question;
+		this.answerOptions = answers;
+		this.correctAnswer = correctAnswer;
+	}
+	public int getNumber() {
+		return number;
+	}
+	public void setNumber(int number) {
+		this.number = number;
+	}
+	public String getQuestionText() {
+		return questionText;
+	}
+	public void setQuestionText(String questionText) {
+		this.questionText = questionText;
+	}
+	public List<String> getAnswerOptions() {
+		return answerOptions;
+	}
+	public void setAnswerOptions(List<String> answerOptions) {
+		this.answerOptions = answerOptions;
+	}
+	public String getCorrectAnswer() {
+		return correctAnswer;
+	}
+	public void setCorrectAnswer(String correctAnswer) {
+		this.correctAnswer = correctAnswer;
+	}
+}

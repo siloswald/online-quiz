@@ -1,0 +1,55 @@
+package oswald.tutorial.jsp;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class QuizUpdaterServlet
+ * used to update the content of the quiz (add questions)
+ */
+@WebServlet("/QuizUpdaterServlet")
+public class QuizUpdaterServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
+		
+		String quizName = request.getParameter("quizName");
+		
+		int number = Integer.parseInt(request.getParameter("number"));
+		String question = request.getParameter("question");
+		String answer1 = request.getParameter("opt1");
+		String answer2 = request.getParameter("opt2");
+		String answer3 = request.getParameter("opt3");
+		String answer4 = request.getParameter("opt4");
+		String correctAnswer = request.getParameter("corrOpt");
+		
+		List<String> answers = new ArrayList<>();
+		answers.add(answer1);
+		answers.add(answer2);
+		answers.add(answer3);
+		answers.add(answer4);
+		
+		Question aQuestion = new Question(number, question, answers, correctAnswer);
+		Quiz aQuiz = DatabaseUtil.readQuizContent(quizName);
+		aQuiz.addQuestion(aQuestion);
+		
+		DatabaseUtil.updateQuizContent(quizName, aQuiz);
+		
+		//display a message that quiz updated
+		out.print("<h3>" + quizName + " was updated</h3>");
+	}
+	
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		doPost(request, response);
+	}
+}

@@ -1,0 +1,59 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<%@ page import="java.util.*" %>
+<%@ page import="oswald.tutorial.jsp.Question" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Display Questions Page</title>
+</head>
+<body>
+<div style='background-color: #ffffff;
+	margin:20px; padding:50px'>
+	
+	<%
+	String quizName = request.getParameter("quizName");
+	out.print("<h1>Displaying " + quizName + "</h1>");
+	
+	%>
+	<h2>Here are the questions:</h2>
+	<br>
+	<%
+	List<Question> questions = (List<Question>)request.getAttribute("quizQuestions");
+	
+	//create a list of correct answers for this quiz, and a list of questiontext
+	List<String> correctAnswers = new ArrayList<>();
+	List<String> questionTexts = new ArrayList<>();
+	for (Question q : questions) {
+		correctAnswers.add(q.getCorrectAnswer());
+		questionTexts.add(q.getQuestionText());
+	}
+	
+	//set the above lists as sessiion attribute to be retrieved by the proccessing jsp page
+	session.setAttribute("correctAnswers", correctAnswers);
+	session.setAttribute("questionTexts", questionTexts);
+	%>
+	<form action='display-results.jsp' method='post' onsubmit="return confirm('Are you sure you want submit?');">
+	<%
+	
+	for (Question aQuestion : questions) {
+		out.print("Question Number " + aQuestion.getNumber() + "<br><br>");
+		out.print(aQuestion.getQuestionText() + "<br>");
+		int questionId = aQuestion.getNumber();
+		//String correctAns = aQuestion.getCorrectAnswer();//used to identify choices as correct/incorect
+		//correctAnswers.add(correctAns);//add the correct answer for current q? to a list of all correct answers
+		for (String answer : aQuestion.getAnswerOptions()) {
+			
+			out.print("<input type='radio' id='radio" +questionId + "' value='" + answer + "' " +
+				"name='answer" + questionId + "' required>" + answer +"</input><br>");
+		}
+		out.print("<br> <hr>");
+	}
+	%>
+		<input type='submit' value='Submit Quiz'>
+	</form>
+	
+</div>	
+</body>
+</html>

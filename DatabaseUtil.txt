@@ -1,0 +1,118 @@
+package oswald.tutorial.jsp;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ *A class containing methods to access the database  
+ */
+public class DatabaseUtil {
+	
+	/*
+	 * creating a connection to database
+	 */
+	public static Connection getConnection() {
+		Connection conn = null;
+		String host = "jdbc:mysql://localhost:3306/onlinequizzes";
+		String uName = "root";
+		String uPass = "root";
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(host, uName, uPass);
+		}
+		catch(SQLException | ClassNotFoundException ex) {
+			System.out.println(ex);
+		}
+		System.out.println("Successfully connected to database");
+		return conn;
+	}
+	
+	/*
+	 * Insert a new quiz into the table of quizzes
+	 * @param aQuiz the content of the quiz
+	 * @param quizName the name of the quiz
+	 * @tableName the name of the table into which the new quiz will be insert.
+	 */
+	public static void insertIntoTable(Quiz aQuiz, String quizName, String tableName) {
+		int rowAffected = 0;
+		String SQLinsert = "INSERT INTO " + tableName + " (name, content) VALUES(?,?);";
+		System.out.println(SQLinsert);
+		try(Connection conn = getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(SQLinsert);) {
+			pstmt.setString(1, quizName);
+		    pstmt.setObject(2, aQuiz);
+		    rowAffected =pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}
+		if (rowAffected > 0) {
+			System.out.println("Quiz created successfully");
+		}
+		else {
+			System.out.println("Quiz creation failed");
+		}
+	}
+	
+	/*
+	 * Get quiz content from the database
+	 * @param quizName name of quiz from which the content will be read
+	 * @return the content of the quiz
+	 */
+	public static Quiz readQuizContent(String quizName) {
+		Quiz aQuiz = null;
+		String readSQL = "SELECT content from MYQUIZZES WHERE NAME='" + quizName + "';";
+		System.out.println(readSQL);
+		ResultSet res = null;
+		try (Connection conn = getConnection();
+				Statement stmt = conn.createStatement();) {
+			res = stmt.executeQuery(readSQL);
+			res.next();
+			
+			byte[] buffer = res.getBytes("content");
+			ObjectInputStream objIn = null;
+			if (buffer != null) {
+				objIn = new ObjectInputStream(new ByteArrayInputStream(buffer));
+			}
+			Object deserialObj = objIn.readObject();
+			aQuiz = (Quiz)deserialObj;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return aQuiz;
+	}
+	
+	/*
+	 * updating quiz content (when questions are added)
+	 * @param quizName the quiz whose content will be updated
+	 * @aQuiz the updated content of quiz 
+	 */
+	public static void updateQuizContent(String quizName, Quiz aQuiz) {
+		int rowAffected = 0;
+		String SQLupdate = "UPDATE MYQUIZZES SET content = ? WHERE NAME = ?;";
+		System.out.println(SQLupdate);//for debugging purpose
+		try(Connection conn = getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(SQLupdate);) {
+		    pstmt.setObject(1, aQuiz);
+		    pstmt.setString(2, quizName);
+		    rowAffected =pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}
+		if (rowAffected > 0) {
+			System.out.println("Question added successfuly");//for debugging purpose
+		}
+		else {
+			System.out.println("adding question failed");//for debugging purpose
+		}
+	}
+}

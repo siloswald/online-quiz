@@ -1,0 +1,77 @@
+package oswald.tutorial.jsp;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class QuizzesListServlet (displays list of quizzes available
+ * from the table "MYQUIZZES" in database)
+ */
+@WebServlet("/QuizzesListServlet")
+public class QuizzesListServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+    
+    public QuizzesListServlet() {
+        super();
+    }
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		res.setContentType("text/html");
+		PrintWriter out = res.getWriter();
+		
+		//connect to database (table "MYQUIZZES" in db "onlinequizzes" in MYSQL)
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet reslt = null;
+		try {
+			con = DatabaseUtil.getConnection();
+			stmt = con.createStatement();
+			
+			String selectSQL = "SELECT NAME FROM MYQUIZZES;";
+			reslt = stmt.executeQuery(selectSQL);
+			
+			out.println("<h3> Here is the List of quizzes to choose from</h3>");
+			out.println("<select>");
+					
+			while (reslt.next()) {
+					out.println("<option>" + reslt.getString("NAME") + "</option>");
+			}
+			out.println("</select>");
+			System.out.println("Connection to Database opened successfully with List");
+		}
+		catch(Exception ex) {
+					System.out.println("SQLerror: " + ex.getMessage());
+		}
+		finally {
+			try {
+				reslt.close();
+				stmt.close();
+				if (con != null) con.close();
+			}
+			catch(Exception ex) {
+				System.out.println("closing resources");
+				System.err.println(ex);
+			}
+		}
+		System.out.println("Connection to Database opened successfully with List");
+				
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(req, res);
+	}
+
+}

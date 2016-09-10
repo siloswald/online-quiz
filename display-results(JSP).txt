@@ -1,0 +1,42 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<%@ page import="java.util.*" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Display Results</title>
+</head>
+<body onunload='StudentWelcome.jsp'>
+<div style='background-color: #ffffff;
+	margin:20px; padding:30px'>
+	<h1>Displaying Results</h1>
+	<%
+	//retrieving lists of correct answers and question texts sent from display-question.jsp
+	List<String> correctAnswers = (List<String>)session.getAttribute("correctAnswers");
+	List<String> questionTexts = (List<String>)session.getAttribute("questionTexts");
+	
+	int yourScore = 0;//number of correctly answered question;
+	
+	for (int i=0; i<correctAnswers.size(); i++) {
+		String selectedAnswer = request.getParameter("answer" + (i + 1));
+		String answerStatus = "Incorrect";
+		String statusFlagColor = "red";//will be used to mark the answer in red(wrong) or green(correct)
+		if (selectedAnswer.equals(correctAnswers.get(i))) {//check if selected answer is correct or not
+			answerStatus = "Correct";
+			statusFlagColor = "green";
+			yourScore ++;
+		}
+		out.print("Question " + (i+1) + ": <span style='color:" + statusFlagColor + 
+				"'>" + answerStatus + "</span>;<br>");
+		out.print(questionTexts.get(i) + "<br>");
+		out.print("You answered: " + selectedAnswer + "<br>");
+		out.print("Correct answer: " + correctAnswers.get(i));
+		out.print("<br><br>");
+	}
+	%>
+	<h2>Your score : <%= yourScore %> / <%= correctAnswers.size() %></h2>
+	
+</div>	
+</body>
+</html>
